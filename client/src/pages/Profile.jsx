@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API from '../api/axios'; // ✅ Import API to fetch fresh data
+import toast from 'react-hot-toast';
+import API from '../api/axios';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -10,14 +11,12 @@ const Profile = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                // ✅ Always fetch fresh data from the server (DB)
-                // This ensures we get the new Cloudinary URL immediately after editing
+                // Always fetch fresh data from DB
                 const res = await API.get('/me');
                 setUser(res.data);
                 localStorage.setItem('user', JSON.stringify(res.data)); 
             } catch (err) {
                 console.error("Error fetching profile", err);
-                // Fallback to local storage
                 const rawUser = localStorage.getItem('user');
                 if (rawUser) {
                     setUser(JSON.parse(rawUser));
@@ -31,27 +30,30 @@ const Profile = () => {
         fetchProfile();
     }, [navigate]);
 
-    // ✅ FIXED HELPER FUNCTION
+    // ✅ LOGOUT FUNCTION (To ensure clean switching)
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        toast.success("Logged out successfully");
+        navigate('/login');
+    };
+
+    // ✅ SMART URL HELPER
     const getFileUrl = (path) => {
         if (!path) return null;
-
-        // 1. If it is a Cloudinary URL (starts with http...), use it directly.
-        if (path.startsWith('http')) {
-            return path;
-        }
-
-        // 2. Fallback for old local images (Development only)
-        // This prevents the "localhost" error on production
+        if (path.startsWith('http')) return path; // Cloudinary
+        
+        // Local Fallback
         const filename = path.split(/[/\\]/).pop();
-        const BASE_URL = import.meta.env.MODE === "development" 
-            ? "http://localhost:5000" 
-            : ""; // On Render, this will look at the current domain
-            
+        const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "";
         return `${BASE_URL}/uploads/${filename}`;
     };
 
     if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div></div>;
     if (!user) return null;
+
+    // ✅ ROLE CHECK: Show resume for anyone who is NOT a recruiter
+    const isCandidate = user.role !== 'recruiter';
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-gray-800">
@@ -61,7 +63,15 @@ const Profile = () => {
                      <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">S</div>
                      <h1 className="text-2xl font-extrabold text-slate-800 tracking-tight">SkillSync</h1>
                 </div>
-                <button onClick={() => navigate('/dashboard')} className="bg-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-md transition text-sm flex items-center gap-2">Dashboard</button>
+                
+                <div className="flex items-center gap-4">
+                    <button onClick={() => navigate('/dashboard')} className="bg-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-md transition text-sm">
+                        Dashboard
+                    </button>
+                    <button onClick={handleLogout} className="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-100 transition text-sm border border-red-200">
+                        Logout
+                    </button>
+                </div>
             </nav>
 
             <div className="max-w-4xl mx-auto p-8">
@@ -72,17 +82,12 @@ const Profile = () => {
                     <div className="px-8 pb-8">
                         <div className="relative flex justify-between items-end -mt-16 mb-6">
                             <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden shadow-lg bg-white relative group">
-                                {/* IMAGE DISPLAY */}
                                 {user.avatar ? (
                                     <img 
                                         src={getFileUrl(user.avatar)} 
                                         alt="Profile" 
                                         className="w-full h-full object-cover" 
-                                        onError={(e) => {
-                                            e.target.onerror = null; 
-                                            // Fallback to default user icon if image fails
-                                            e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-                                        }}
+                                        onError={(e) => { e.target.onerror = null; e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; }}
                                     />
                                 ) : (
                                     <div className="w-full h-full bg-gray-200 flex items-center justify-center text-4xl">👤</div>
@@ -97,7 +102,13 @@ const Profile = () => {
                         </div>
 
                         <div className="mb-8">
-                            <h1 className="text-3xl font-extrabold text-[#2c1e6d] mb-1">{user.name}</h1>
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-3xl font-extrabold text-[#2c1e6d] mb-1">{user.name}</h1>
+                                {/* ✅ DEBUG BADGE: Shows you exactly what the role is */}
+                                <span className={`text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wider ${isCandidate ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
+                                    {user.role}
+                                </span>
+                            </div>
                             <p className="text-slate-500 font-medium">{user.email}</p>
                             <p className="mt-4 text-gray-600 leading-relaxed max-w-2xl">{user.bio || "No bio added yet."}</p>
                         </div>
@@ -119,8 +130,8 @@ const Profile = () => {
                                 </div>
                             </div>
 
-                            {/* Resume */}
-                            {user.role === 'user' && (
+                            {/* ✅ RESUME: Show if NOT a recruiter */}
+                            {isCandidate && (
                                 <div>
                                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Resume</h3>
                                     {user.resume ? (
@@ -128,7 +139,6 @@ const Profile = () => {
                                             <div className="text-3xl">📄</div>
                                             <div>
                                                 <p className="font-bold text-slate-700">My Resume.pdf</p>
-                                                {/* RESUME DOWNLOAD LINK */}
                                                 <a 
                                                     href={getFileUrl(user.resume)} 
                                                     target="_blank" 
