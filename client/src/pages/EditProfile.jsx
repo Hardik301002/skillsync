@@ -16,9 +16,10 @@ const EditProfile = () => {
     const [resumeFile, setResumeFile] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
 
-   const BASE_URL = import.meta.env.MODE === "development" 
-    ? "http://localhost:5000" 
-    : "";
+    // ✅ SMART URL CONFIG (For Local Fallback)
+    const BASE_URL = import.meta.env.MODE === "development" 
+        ? "http://localhost:5000" 
+        : "";
 
     useEffect(() => {
         const rawUser = localStorage.getItem('user');
@@ -29,9 +30,16 @@ const EditProfile = () => {
             setSkills(user.skills ? (Array.isArray(user.skills) ? user.skills.join(', ') : user.skills) : '');
             setBio(user.bio || '');
             
+            // ✅ UPDATED IMAGE LOGIC
             if (user.avatar) {
-                const filename = user.avatar.split(/[/\\]/).pop();
-                setAvatarPreview(`${BASE_URL}/uploads/${filename}`);
+                if (user.avatar.startsWith('http')) {
+                    // Cloudinary URL -> Use directly
+                    setAvatarPreview(user.avatar);
+                } else {
+                    // Local File -> Clean path and use BASE_URL
+                    const filename = user.avatar.split(/[/\\]/).pop();
+                    setAvatarPreview(`${BASE_URL}/uploads/${filename}`);
+                }
             }
         } else {
             navigate('/login');
@@ -78,6 +86,7 @@ const EditProfile = () => {
 
             const res = await API.put('/profile', formData, config);
             
+            // Update Local Storage with new data (including new Cloudinary URL)
             localStorage.setItem('user', JSON.stringify(res.data));
             toast.success("Profile updated successfully!");
             navigate('/profile'); 

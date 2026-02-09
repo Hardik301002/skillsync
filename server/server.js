@@ -15,49 +15,54 @@ const app = express();
 connectDB();
 
 // ---------------------------------------------------------
-// 🚀 1. SETUP LOCAL UPLOADS FOLDER
+// 🔍 DEBUGGING: Check for Frontend Files
 // ---------------------------------------------------------
-const uploadsPath = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsPath)) {
-    fs.mkdirSync(uploadsPath, { recursive: true });
-    console.log(`✅ Local uploads folder created at: ${uploadsPath}`);
+const distPath = path.join(__dirname, 'dist');
+console.log(`Checking frontend build at: ${distPath}`);
+if (fs.existsSync(distPath)) {
+    console.log("✅ 'dist' folder exists. Files found:", fs.readdirSync(distPath));
+} else {
+    console.error("❌ CRITICAL ERROR: 'dist' folder is MISSING. The website will not load.");
 }
 
 // ---------------------------------------------------------
-// 🚀 2. MIDDLEWARE
+// 🚀 1. MIDDLEWARE
 // ---------------------------------------------------------
 app.use(cors({
     origin: [
-        "http://localhost:5173",                 // Local React
-        "https://skillsync-z8ru.onrender.com"    // Live Render App
+        "http://localhost:5173",                 // Local Development
+        "https://skillsync-z8ru.onrender.com"    // Live Production
     ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
 
 app.use(express.json());
 
 // ---------------------------------------------------------
-// 🚀 3. SERVE IMAGES & FRONTEND
+// 🚀 2. SERVE STATIC FILES (Frontend Only)
 // ---------------------------------------------------------
-// Serve Uploaded Images
-app.use('/uploads', express.static(uploadsPath));
+// Note: We REMOVED the '/uploads' static route because 
+// images are now served directly from Cloudinary URLs.
 
-// Serve React Frontend (dist folder)
-// This is the specific line that fixes "Cannot GET /"
-app.use(express.static(path.join(__dirname, 'dist')));
+// Serve React Frontend (CSS/JS/Images from build)
+app.use(express.static(distPath));
 
 // ---------------------------------------------------------
-// 🚀 4. API ROUTES
+// 🚀 3. API ROUTES
 // ---------------------------------------------------------
 app.use('/api/v1', require('./routes/mainRoutes'));
 
 // ---------------------------------------------------------
-// 🚀 5. CATCH-ALL ROUTE (For React Routing)
+// 🚀 4. FINAL CATCH-ALL (For React Routing)
 // ---------------------------------------------------------
-// If the request is not an API call or image, send the React App
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+// This catches any request that isn't an API call.
+app.use((req, res) => {
+    const indexPath = path.join(distPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        res.status(404).send("<h1>404 Error</h1><p>Frontend build files not found. Check server logs.</p>");
+    }
 });
 
 // Start Server

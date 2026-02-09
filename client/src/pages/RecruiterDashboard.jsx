@@ -19,9 +19,10 @@ const RecruiterDashboard = () => {
     // ✅ HELPER: Get Correct Image URL
     const getAvatarUrl = () => {
         if (user && user.avatar) {
-            // Remove 'server/uploads/' or 'C:\Users...' to get just 'image.png'
-            const filename = user.avatar.split(/[/\\]/).pop();
-            return `${BASE_URL}/uploads/${filename}`;
+           if (user.avatar.startsWith('http')) {
+              return user.avatar;
+           }
+           return `${BASE_URL}/${user.avatar}`;
         }
         return "https://cdn-icons-png.flaticon.com/512/149/149071.png";
     };
