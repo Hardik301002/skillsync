@@ -16,7 +16,7 @@ const EditProfile = () => {
     const [resumeFile, setResumeFile] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
 
-    // ✅ SMART URL CONFIG (For Local Fallback)
+    // ✅ SMART URL CONFIG
     const BASE_URL = import.meta.env.MODE === "development" 
         ? "http://localhost:5000" 
         : "";
@@ -106,6 +106,9 @@ const EditProfile = () => {
 
     if (!currentUser) return null;
 
+    // ✅ CHECK: Allow editing for anyone who isn't a recruiter
+    const isCandidate = currentUser.role !== 'recruiter';
+
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-gray-800">
              <nav className="bg-white/80 backdrop-blur-md shadow-sm px-10 py-4 flex justify-between items-center sticky top-0 z-50 border-b border-gray-200">
@@ -143,8 +146,8 @@ const EditProfile = () => {
                         <p className="text-sm text-gray-400">Tap image to change</p>
                     </div>
 
-                    {/* Resume */}
-                    {currentUser.role === 'user' && (
+                    {/* Resume Upload - Visible for Candidates */}
+                    {isCandidate && (
                         <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-100">
                             <label className="block text-[#2c1e6d] font-bold mb-2">Upload Resume (PDF)</label>
                             <div className="flex items-center gap-4">
@@ -159,12 +162,15 @@ const EditProfile = () => {
                         <label className="block text-gray-700 font-bold mb-2">Full Name</label>
                         <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#6366f1]" />
                     </div>
-                    {currentUser.role === 'user' && (
+                    
+                    {/* Skills - Visible for Candidates */}
+                    {isCandidate && (
                         <div>
                             <label className="block text-gray-700 font-bold mb-2">Skills</label>
                             <input type="text" value={skills} onChange={(e) => setSkills(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#6366f1]" placeholder="e.g. React, Node.js" />
                         </div>
                     )}
+                    
                     <div>
                         <label className="block text-gray-700 font-bold mb-2">Bio</label>
                         <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows="3" className="w-full p-3 border border-gray-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#6366f1]"></textarea>

@@ -30,7 +30,7 @@ const Profile = () => {
         fetchProfile();
     }, [navigate]);
 
-    // ✅ LOGOUT FUNCTION (To ensure clean switching)
+    // ✅ LOGOUT FUNCTION
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -41,9 +41,9 @@ const Profile = () => {
     // ✅ SMART URL HELPER
     const getFileUrl = (path) => {
         if (!path) return null;
-        if (path.startsWith('http')) return path; // Cloudinary
+        if (path.startsWith('http')) return path; // Cloudinary URL
         
-        // Local Fallback
+        // Local Fallback (Only for dev or legacy)
         const filename = path.split(/[/\\]/).pop();
         const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "";
         return `${BASE_URL}/uploads/${filename}`;
@@ -52,8 +52,9 @@ const Profile = () => {
     if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div></div>;
     if (!user) return null;
 
-    // ✅ ROLE CHECK: Show resume for anyone who is NOT a recruiter
-    const isCandidate = user.role !== 'recruiter';
+    // ✅ ROLE CHECK: If you are NOT a recruiter, you are a Candidate/User
+    const isRecruiter = user.role === 'recruiter';
+    const isCandidate = !isRecruiter;
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-gray-800">
@@ -106,7 +107,7 @@ const Profile = () => {
                                 <h1 className="text-3xl font-extrabold text-[#2c1e6d] mb-1">{user.name}</h1>
                                 {/* ✅ DEBUG BADGE: Shows you exactly what the role is */}
                                 <span className={`text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wider ${isCandidate ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}`}>
-                                    {user.role}
+                                    {isCandidate ? 'Candidate' : 'Recruiter'}
                                 </span>
                             </div>
                             <p className="text-slate-500 font-medium">{user.email}</p>
@@ -130,7 +131,7 @@ const Profile = () => {
                                 </div>
                             </div>
 
-                            {/* ✅ RESUME: Show if NOT a recruiter */}
+                            {/* ✅ RESUME: Shown for anyone who is NOT a recruiter */}
                             {isCandidate && (
                                 <div>
                                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Resume</h3>
