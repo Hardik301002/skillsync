@@ -1,50 +1,57 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API from '../api/axios'; // Import API to get fresh data
+import API from '../api/axios'; // ✅ Import API to fetch fresh data
 
 const Profile = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
-
-    // ✅ SMART URL HELPER
-    // Handles both Cloudinary URLs (starts with http) and old local files
-    const getFileUrl = (path) => {
-        if (!path) return null;
-
-        // 1. If it's a Cloudinary URL (starts with http or https), return it directly
-        if (path.startsWith('http')) {
-            return path;
-        }
-
-        // 2. If it's an old local file, try to construct the path (Fallback)
-        const filename = path.split(/[/\\]/).pop();
-        // In production, BASE_URL is empty; in dev, it's localhost:5000
-        const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "";
-        return `${BASE_URL}/uploads/${filename}`;
-    };
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                // 1. Try to get fresh data from the server
+                // ✅ Always fetch fresh data from the server (DB)
+                // This ensures we get the new Cloudinary URL immediately after editing
                 const res = await API.get('/me');
                 setUser(res.data);
-                localStorage.setItem('user', JSON.stringify(res.data)); // Sync local storage
+                localStorage.setItem('user', JSON.stringify(res.data)); 
             } catch (err) {
                 console.error("Error fetching profile", err);
-                // 2. Fallback to local storage if API fails
+                // Fallback to local storage
                 const rawUser = localStorage.getItem('user');
                 if (rawUser) {
                     setUser(JSON.parse(rawUser));
                 } else {
                     navigate('/login');
                 }
+            } finally {
+                setLoading(false);
             }
         };
         fetchProfile();
     }, [navigate]);
 
-    if (!user) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div></div>;
+    // ✅ FIXED HELPER FUNCTION
+    const getFileUrl = (path) => {
+        if (!path) return null;
+
+        // 1. If it is a Cloudinary URL (starts with http...), use it directly.
+        if (path.startsWith('http')) {
+            return path;
+        }
+
+        // 2. Fallback for old local images (Development only)
+        // This prevents the "localhost" error on production
+        const filename = path.split(/[/\\]/).pop();
+        const BASE_URL = import.meta.env.MODE === "development" 
+            ? "http://localhost:5000" 
+            : ""; // On Render, this will look at the current domain
+            
+        return `${BASE_URL}/uploads/${filename}`;
+    };
+
+    if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div></div>;
+    if (!user) return null;
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-gray-800">
@@ -73,6 +80,7 @@ const Profile = () => {
                                         className="w-full h-full object-cover" 
                                         onError={(e) => {
                                             e.target.onerror = null; 
+                                            // Fallback to default user icon if image fails
                                             e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
                                         }}
                                     />
