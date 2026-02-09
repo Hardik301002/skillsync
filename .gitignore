@@ -1,0 +1,39 @@
+# ---------------------------------------
+# 1. DEPENDENCIES (Don't upload these)
+# ---------------------------------------
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# ---------------------------------------
+# 2. ENVIRONMENT VARIABLES (Keep Secret)
+# ---------------------------------------
+.env
+client/.env
+server/.env
+
+# ---------------------------------------
+# 3. BUILD OUTPUTS
+# ---------------------------------------
+# We ignore the dist inside 'client' because we are moving it
+client/dist/
+client/build/
+
+# ⚠️ CRITICAL: We DO NOT ignore 'server/dist' 
+# This is your built frontend. It MUST go to GitHub.
+
+# ---------------------------------------
+# 4. UPLOADS FOLDER
+# ---------------------------------------
+# Ignore the actual images
+server/uploads/*
+# But KEEP the folder structure (This requires a .gitkeep file)
+!server/uploads/.gitkeep
+
+# ---------------------------------------
+# 5. SYSTEM & LOGS
+# ---------------------------------------
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
