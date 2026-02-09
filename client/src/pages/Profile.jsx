@@ -1,29 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API from '../api/axios'; // Import API to get fresh data
 
 const Profile = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
 
-    useEffect(() => {
-        const rawUser = localStorage.getItem('user');
-        if (rawUser) {
-            setUser(JSON.parse(rawUser));
-        } else {
-            navigate('/login');
-        }
-    }, [navigate]);
-
-    if (!user) return null;
-
-    // HELPER: Extracts ONLY the filename (e.g., "image-123.png") 
-    // This ignores "C:\Users\..." or "uploads\" prefixes entirely.
+    // ✅ SMART URL HELPER
+    // Handles both Cloudinary URLs (starts with http) and old local files
     const getFileUrl = (path) => {
         if (!path) return null;
-        // Split by / or \ and take the last part
+
+        // 1. If it's a Cloudinary URL (starts with http or https), return it directly
+        if (path.startsWith('http')) {
+            return path;
+        }
+
+        // 2. If it's an old local file, try to construct the path (Fallback)
         const filename = path.split(/[/\\]/).pop();
-        return `http://localhost:5000/uploads/${filename}`;
+        // In production, BASE_URL is empty; in dev, it's localhost:5000
+        const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "";
+        return `${BASE_URL}/uploads/${filename}`;
     };
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                // 1. Try to get fresh data from the server
+                const res = await API.get('/me');
+                setUser(res.data);
+                localStorage.setItem('user', JSON.stringify(res.data)); // Sync local storage
+            } catch (err) {
+                console.error("Error fetching profile", err);
+                // 2. Fallback to local storage if API fails
+                const rawUser = localStorage.getItem('user');
+                if (rawUser) {
+                    setUser(JSON.parse(rawUser));
+                } else {
+                    navigate('/login');
+                }
+            }
+        };
+        fetchProfile();
+    }, [navigate]);
+
+    if (!user) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div></div>;
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-gray-800">
@@ -44,7 +65,7 @@ const Profile = () => {
                     <div className="px-8 pb-8">
                         <div className="relative flex justify-between items-end -mt-16 mb-6">
                             <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden shadow-lg bg-white relative group">
-                                {/*  IMAGE DISPLAY */}
+                                {/* IMAGE DISPLAY */}
                                 {user.avatar ? (
                                     <img 
                                         src={getFileUrl(user.avatar)} 
@@ -79,9 +100,9 @@ const Profile = () => {
                                 <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Skills</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {user.skills && user.skills.length > 0 ? (
-                                        user.skills.map((skill, index) => (
+                                        (Array.isArray(user.skills) ? user.skills : user.skills.split(',')).map((skill, index) => (
                                             <span key={index} className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-sm font-bold">
-                                                {skill}
+                                                {typeof skill === 'string' ? skill.trim() : skill}
                                             </span>
                                         ))
                                     ) : (
@@ -99,7 +120,7 @@ const Profile = () => {
                                             <div className="text-3xl">📄</div>
                                             <div>
                                                 <p className="font-bold text-slate-700">My Resume.pdf</p>
-                                                {/*  RESUME DOWNLOAD LINK */}
+                                                {/* RESUME DOWNLOAD LINK */}
                                                 <a 
                                                     href={getFileUrl(user.resume)} 
                                                     target="_blank" 
