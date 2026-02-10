@@ -7,19 +7,20 @@ const EditProfile = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     
+    // Form States
     const [name, setName] = useState('');
     const [skills, setSkills] = useState('');
     const [bio, setBio] = useState('');
     
+    // File States
     const [avatarFile, setAvatarFile] = useState(null);
     const [avatarPreview, setAvatarPreview] = useState(null);
     const [resumeFile, setResumeFile] = useState(null);
+    
     const [currentUser, setCurrentUser] = useState(null);
 
-    // ✅ SMART URL CONFIG
-    const BASE_URL = import.meta.env.MODE === "development" 
-        ? "http://localhost:5000" 
-        : "";
+    // Smart URL for Fallback
+    const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "";
 
     useEffect(() => {
         const rawUser = localStorage.getItem('user');
@@ -30,15 +31,13 @@ const EditProfile = () => {
             setSkills(user.skills ? (Array.isArray(user.skills) ? user.skills.join(', ') : user.skills) : '');
             setBio(user.bio || '');
             
-            // ✅ UPDATED IMAGE LOGIC
+            // ✅ PREVIEW LOGIC
             if (user.avatar) {
                 if (user.avatar.startsWith('http')) {
-                    // Cloudinary URL -> Use directly
-                    setAvatarPreview(user.avatar);
+                    setAvatarPreview(user.avatar); // Cloudinary URL
                 } else {
-                    // Local File -> Clean path and use BASE_URL
                     const filename = user.avatar.split(/[/\\]/).pop();
-                    setAvatarPreview(`${BASE_URL}/uploads/${filename}`);
+                    setAvatarPreview(`${BASE_URL}/uploads/${filename}`); // Local fallback
                 }
             }
         } else {
@@ -72,33 +71,25 @@ const EditProfile = () => {
             formData.append('name', name);
             formData.append('skills', skills);
             formData.append('bio', bio);
+            
+            // ✅ Sending files to backend (Backend will upload to Cloudinary)
             if (avatarFile) formData.append('avatar', avatarFile);
             if (resumeFile) formData.append('resume', resumeFile);
 
             const token = localStorage.getItem('token');
-
-            const config = {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'x-auth-token': token
-                }
-            };
+            const config = { headers: { 'Content-Type': 'multipart/form-data', 'x-auth-token': token } };
 
             const res = await API.put('/profile', formData, config);
             
-            // Update Local Storage with new data (including new Cloudinary URL)
+            // ✅ Save the new Cloudinary data to LocalStorage immediately
             localStorage.setItem('user', JSON.stringify(res.data));
+            
             toast.success("Profile updated successfully!");
             navigate('/profile'); 
 
         } catch (err) {
             console.error("Profile Update Error:", err);
-            if (err.response && err.response.status === 401) {
-                toast.error("Session expired. Please login again.");
-                navigate('/login');
-            } else {
-                toast.error(err.response?.data?.message || "Error updating profile");
-            }
+            toast.error(err.response?.data?.message || "Error updating profile");
         } finally {
             setLoading(false);
         }
@@ -106,7 +97,7 @@ const EditProfile = () => {
 
     if (!currentUser) return null;
 
-    // ✅ CHECK: Allow editing for anyone who isn't a recruiter
+    // ✅ CANDIDATE CHECK
     const isCandidate = currentUser.role !== 'recruiter';
 
     return (
@@ -122,31 +113,24 @@ const EditProfile = () => {
                 <h2 className="text-3xl font-bold text-[#2c1e6d] mb-8 text-center">Edit Profile</h2>
 
                 <form onSubmit={onSubmit} className="space-y-6">
-                    {/* Avatar */}
+                    {/* Avatar Upload */}
                     <div className="flex flex-col items-center mb-6">
                         <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-indigo-50 mb-4 bg-gray-100 flex items-center justify-center relative group shadow-sm">
                             {avatarPreview ? (
-                                <img 
-                                    src={avatarPreview} 
-                                    alt="Avatar" 
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                        e.target.onerror = null; 
-                                        e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-                                    }}
+                                <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover"
+                                    onError={(e) => { e.target.onerror = null; e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; }}
                                 />
                             ) : (
                                 <span className="text-4xl">👤</span>
                             )}
                             <label className="absolute inset-0 bg-black/40 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition cursor-pointer">
-                                📷
-                                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                                📷 <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
                             </label>
                         </div>
                         <p className="text-sm text-gray-400">Tap image to change</p>
                     </div>
 
-                    {/* Resume Upload - Visible for Candidates */}
+                    {/* Resume Upload (Candidate Only) */}
                     {isCandidate && (
                         <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-100">
                             <label className="block text-[#2c1e6d] font-bold mb-2">Upload Resume (PDF)</label>
@@ -157,13 +141,12 @@ const EditProfile = () => {
                         </div>
                     )}
 
-                    {/* Basic Info */}
+                    {/* Basic Fields */}
                     <div>
                         <label className="block text-gray-700 font-bold mb-2">Full Name</label>
                         <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-3 border border-gray-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#6366f1]" />
                     </div>
                     
-                    {/* Skills - Visible for Candidates */}
                     {isCandidate && (
                         <div>
                             <label className="block text-gray-700 font-bold mb-2">Skills</label>
