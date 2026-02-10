@@ -125,7 +125,11 @@ const Dashboard = () => {
                             onChange={(e) => setSearchTerm(e.target.value)} 
                             className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white shadow-sm transition-all" 
                         />
-                        <span className="absolute left-3 top-3.5 text-slate-400">🔍</span>
+                        <span className="absolute left-3 top-3.5 text-slate-400">
+                            <button className="bg-indigo-600 text-white px-4 py-3 rounded-full font-bold hover:bg-indigo-700 transition shadow-md">
+                               Find Job
+                            </button>
+                        </span>
                     </div>
                 </div>
 

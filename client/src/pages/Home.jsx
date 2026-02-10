@@ -40,12 +40,6 @@ const Home = () => {
                     <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl cursor-pointer">S</div>
                     <span className="text-2xl font-extrabold text-slate-800 tracking-tight cursor-pointer">SkillSync</span>
                 </div>
-                
-                <div className="hidden md:flex gap-8 items-center font-medium text-slate-600">
-                    <Link to="/" className="text-indigo-600 font-bold hover:text-indigo-700 transition">Home</Link>
-                    <a href="#jobs" className="hover:text-indigo-600 transition">Browse Jobs</a>
-                    <Link to="/about" className="hover:text-indigo-600 transition">About Us</Link>
-                </div>
 
                 <div className="flex gap-3 items-center">
                     <button onClick={() => navigate('/about')} className="bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all transform active:scale-95">About Us</button>
