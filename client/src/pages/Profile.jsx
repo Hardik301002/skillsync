@@ -6,7 +6,7 @@ import API from '../api/axios';
 const Profile = () => {
     const navigate = useNavigate();
     
-    // 1. Initialize from LocalStorage (Instant Load)
+    // 1. Initialize from LocalStorage (Instant Load of Fresh Data)
     const [user, setUser] = useState(() => {
         const savedUser = localStorage.getItem('user');
         return savedUser ? JSON.parse(savedUser) : null;
@@ -17,8 +17,18 @@ const Profile = () => {
     useEffect(() => {
         const fetchProfileSync = async () => {
             try {
-                // 2. Background Sync with Database
-                const res = await API.get('/me');
+                // ✅ FIX: CACHE BUSTER
+                // We add ?t=Date.now() to force the browser to actually ask the server
+                // instead of giving us old cached data.
+                const res = await API.get(`/me?t=${Date.now()}`, {
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache',
+                        'Expires': '0',
+                    }
+                });
+
+                // Only update if the server data is actually different
                 if (JSON.stringify(res.data) !== JSON.stringify(user)) {
                      setUser(res.data);
                      localStorage.setItem('user', JSON.stringify(res.data));
@@ -33,9 +43,8 @@ const Profile = () => {
             }
         };
 
-        // Always fetch fresh data to get the latest Cloudinary URL
         fetchProfileSync();
-    }, [navigate]); 
+    }, [navigate]); // Removed 'user' dependency to stop infinite loops
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -47,8 +56,7 @@ const Profile = () => {
     // ✅ SMART CLOUDINARY HELPER
     const getFileUrl = (path) => {
         if (!path) return null;
-        // If it's a Cloudinary URL (starts with http), use it directly
-        if (path.startsWith('http')) return path;
+        if (path.startsWith('http')) return path; // Cloudinary URL
         
         // Fallback for old local files (Dev environment only)
         const filename = path.split(/[/\\]/).pop();
@@ -59,7 +67,7 @@ const Profile = () => {
     if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div></div>;
     if (!user) return null;
 
-    // ✅ CANDIDATE CHECK (Anyone who is NOT a recruiter gets a Resume section)
+    // ✅ CANDIDATE CHECK
     const isCandidate = user.role !== 'recruiter';
 
     // Role Badge Logic
