@@ -5,12 +5,19 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     skills: { type: [String], default: [] },
-    bio: { type: String },
-    role: { type: String, enum: ['user', 'candidate', 'recruiter', 'admin'], default: 'user' },
-    avatar: { type: String },
-    resume: { type: String },
+    bio: { type: String, default: '' },
     
-    // It Store Saved Job IDs
+    // ✅ FIX: This line allows 'candidate' and 'user' roles to be saved
+    role: { 
+        type: String, 
+        enum: ['user', 'candidate', 'recruiter', 'admin'], 
+        default: 'user' 
+    },
+    
+    // ✅ FIX: These store the Cloudinary Links
+    avatar: { type: String, default: '' },
+    resume: { type: String, default: '' },
+    
     savedJobs: [{ 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Job' 
