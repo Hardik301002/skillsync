@@ -3,20 +3,13 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const sendEmail = require('../utils/sendEmail');
 
-// ✅ FIX: Structure the payload so middleware can read 'decoded.user'
 const generateToken = (id) => {
-    const payload = {
-        user: {
-            id: id
-        }
-    };
-    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '30d' });
+    return jwt.sign({ user: { id } }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
-// 1. REGISTER USER
+// 1. REGISTER
 exports.registerUser = async (req, res) => {
     const { name, email, password, skills, role } = req.body;
-    
     try {
         let user = await User.findOne({ email });
         if (user) return res.status(400).json({ message: 'User already exists' });
@@ -34,35 +27,26 @@ exports.registerUser = async (req, res) => {
 
         await user.save();
 
-        // Send Welcome Email (Wrapped in try/catch so it doesn't block registration)
+        // Welcome Email
         try {
-            const message = `<h1>Welcome to SkillSync, ${user.name}!</h1><p>Login to start your journey.</p>`;
             await sendEmail({
                 email: user.email,
                 subject: 'Welcome to SkillSync! 🎉',
-                message
+                message: `<h1>Welcome, ${user.name}!</h1><p>Your account is ready.</p>`
             });
-        } catch (err) {
-            console.error("Welcome Email Failed:", err.message);
-        }
+        } catch (err) { console.error("Email Error:", err.message); }
 
         res.json({
             token: generateToken(user._id),
-            user: { // Send User Object separately for Redux/Context
-                _id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            }
+            user: { _id: user.id, name: user.name, email: user.email, role: user.role }
         });
-
     } catch (err) {
-        console.error("Register Error:", err.message);
+        console.error(err.message);
         res.status(500).send('Server Error');
     }
 };
 
-// 2. LOGIN USER
+// 2. LOGIN
 exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -77,48 +61,56 @@ exports.loginUser = async (req, res) => {
             _id: user.id,
             name: user.name,
             email: user.email,
+            role: user.role,
             skills: user.skills,
             bio: user.bio,
-            role: user.role,
             avatar: user.avatar,
             resume: user.resume
         });
     } catch (err) {
-        console.error("Login Error:", err.message);
+        console.error(err.message);
         res.status(500).send('Server Error');
     }
 };
 
-// 3. UPDATE USER PROFILE
+// 3. UPDATE USER PROFILE (✅ ATOMIC FIX)
 exports.updateUserProfile = async (req, res) => {
     try {
-        // req.user is now guaranteed to exist by middleware
-        const user = await User.findById(req.user.id);
-
-        if (!user) return res.status(404).json({ message: 'User not found' });
-
         const { name, skills, bio, role } = req.body;
-
-        if (name) user.name = name;
-        if (bio) user.bio = bio;
-        if (role) user.role = role;
         
+        // 1. Build the Update Object
+        const updateData = {};
+        
+        if (name) updateData.name = name;
+        if (bio) updateData.bio = bio;
+        if (role) updateData.role = role;
         if (skills) {
-            user.skills = Array.isArray(skills) 
+            updateData.skills = Array.isArray(skills) 
                 ? skills 
-                : skills.split(',').map(skill => skill.trim());
+                : skills.split(',').map(s => s.trim());
         }
 
-        // Handle File Uploads
+        // 2. Handle Cloudinary Files (Atomic Insert)
         if (req.files) {
-            if (req.files['avatar']) user.avatar = req.files['avatar'][0].path;
-            if (req.files['resume']) user.resume = req.files['resume'][0].path;
+            if (req.files['avatar']) {
+                updateData.avatar = req.files['avatar'][0].path; // Cloudinary URL
+            }
+            if (req.files['resume']) {
+                updateData.resume = req.files['resume'][0].path; // Cloudinary URL
+            }
         }
 
-        const updatedUser = await user.save();
+        // 3. Perform Atomic Update
+        // { new: true } returns the updated document immediately
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.id,
+            { $set: updateData },
+            { new: true } 
+        ).select('-password'); // Exclude password from response
 
+        // 4. Send Response
         res.json({
-            token: req.header('x-auth-token'), // Keep existing token
+            token: req.header('x-auth-token'),
             _id: updatedUser._id,
             name: updatedUser.name,
             email: updatedUser.email,
@@ -135,24 +127,22 @@ exports.updateUserProfile = async (req, res) => {
     }
 };
 
-// 4. ADMIN: GET ALL USERS
+// 4. GET ALL USERS
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.find().select('-password').sort({ date: -1 }).lean();
         res.json(users);
     } catch (err) {
-        console.error(err.message);
         res.status(500).send('Server Error');
     }
 };
 
-// 5. ADMIN: DELETE USER
+// 5. DELETE USER
 exports.deleteUser = async (req, res) => {
     try {
         await User.findByIdAndDelete(req.params.id);
         res.json({ message: 'User Deleted' });
     } catch (err) {
-        console.error(err.message);
         res.status(500).send('Server Error');
     }
 };
