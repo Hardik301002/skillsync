@@ -96,14 +96,19 @@ const RegisteredCompanies = () => {
             <div className="max-w-7xl mx-auto p-6 md:p-10">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                     {/* Search bar */}
-                    <div className="relative w-full md:w-80">
+                    <div className="relative w-full md:w-96 mx-auto">
                          <input 
                             type="text" 
                             placeholder="Search for company..." 
                             value={searchTerm} 
                             onChange={(e) => setSearchTerm(e.target.value)} 
-                            className="w-full pl-4 pr-10 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white transition-all"
+                            className="w-full pl-12 pr-4 py-3.5 rounded-full border-0 bg-white text-slate-800 shadow-lg shadow-indigo-500/10 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 transition-all hover:shadow-indigo-500/20"
                         />
+                        <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                           <svg className="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                           </svg>
+                        </div>
                     </div>
                     {/* "Add new company" button */}
                     <button onClick={() => navigate('/add-company')} className="bg-[#6366f1] text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-md transition text-sm">

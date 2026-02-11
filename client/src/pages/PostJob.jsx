@@ -59,39 +59,32 @@ const PostJob = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans text-gray-800">
+        <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
             {/* Navbar */}
-            <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 px-6 py-4">
-                <div className="max-w-5xl mx-auto flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">S</div>
-                        <h1 className="text-2xl font-extrabold text-slate-800 tracking-tight cursor-pointer" onClick={() => navigate('/dashboard')}>SkillSync</h1>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <button onClick={() => navigate('/dashboard')} className="bg-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-md transition text-sm flex items-center gap-2">Dashboard</button>
-                        
-                        {/* ✅ 3. USE HELPER HERE */}
-                        <button onClick={() => navigate('/profile')} className="w-10 h-10 rounded-full bg-indigo-100 border-2 border-indigo-200 overflow-hidden hover:ring-2 hover:ring-indigo-300 transition">
-                             <img 
-                                src={getAvatarUrl()} 
-                                alt="Avatar" 
-                                className="w-full h-full object-cover" 
-                                onError={(e) => { e.target.onerror = null; e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; }}
-                            />
-                        </button>
-                    </div>
+            <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-slate-200 px-6 md:px-10 py-4 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">S</div>
+                    <h1 className="text-2xl font-extrabold text-slate-800 tracking-tight cursor-pointer" onClick={() => navigate('/dashboard')}>SkillSync</h1>
+                </div>
+                <div className="flex items-center gap-4">
+                    <button onClick={() => navigate('/dashboard')} className="bg-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-md transition text-sm flex items-center gap-2">Dashboard</button>
+                    
+                    {/* ✅ 3. USE HELPER HERE */}
+                    <button onClick={() => navigate('/profile')} className="w-10 h-10 rounded-full bg-indigo-100 border-2 border-indigo-200 overflow-hidden hover:ring-2 hover:ring-indigo-300 transition">
+                         <img 
+                            src={getAvatarUrl()} 
+                            alt="Avatar" 
+                            className="w-full h-full object-cover" 
+                            onError={(e) => { e.target.onerror = null; e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; }}
+                        />
+                    </button>
                 </div>
             </nav>
 
             <div className="max-w-3xl mx-auto p-6 md:p-10">
-                <div className="mb-8 text-center">
-                    <h1 className="text-3xl font-bold text-[#2c1e6d]">Post a New Job</h1>
-                    <p className="text-gray-500 mt-2">Find the perfect talent for your team.</p>
-                </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="bg-indigo-50 p-4 border-b border-indigo-100 flex items-center gap-3">
-                         <span className="text-2xl">💼</span>
                          <p className="font-bold text-indigo-900">Job Details</p>
                     </div>
                     

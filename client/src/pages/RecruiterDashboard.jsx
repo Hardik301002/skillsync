@@ -108,7 +108,7 @@ const RecruiterDashboard = () => {
 
                     <button 
                         onClick={handleLogout} 
-                        className="text-red-500 hover:text-red-600 font-bold text-sm transition"
+                        className="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-100 transition text-sm border border-red-200"
                     >
                         Logout
                     </button>
@@ -118,15 +118,19 @@ const RecruiterDashboard = () => {
             <div className="max-w-7xl mx-auto p-6 md:p-8">
                 {/* Header Actions */}
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                    <div className="relative w-full md:w-96">
+                    <div className="relative w-full md:w-96 mx-auto">
                         <input 
                             type="text" 
                             placeholder="Search role or company..." 
                             value={searchTerm} 
                             onChange={(e) => setSearchTerm(e.target.value)} 
-                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white shadow-sm transition-all"
+                            className="w-full pl-12 pr-4 py-3.5 rounded-full border-0 bg-white text-slate-800 shadow-lg shadow-indigo-500/10 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 transition-all hover:shadow-indigo-500/20"
                         />
-                        <span className="absolute left-3 top-3.5 text-slate-400">🔍</span>
+                        <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                           <svg className="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                           </svg>
+                        </div>
                     </div>
                 </div>
 

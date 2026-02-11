@@ -68,7 +68,7 @@ const Dashboard = () => {
             const res = await API.put(`/jobs/${jobId}/save`, {}, config);
             if (res.data.saved) {
                 setSavedJobIds([...savedJobIds, jobId]);
-                toast.success("Job Saved! 🔖");
+                toast.success("Job Saved! ");
             } else {
                 setSavedJobIds(savedJobIds.filter(id => id !== jobId));
                 toast.success("Job Removed.");
@@ -105,16 +105,12 @@ const Dashboard = () => {
                             }}
                         />
                     </button>
-                    <button onClick={() => { localStorage.clear(); window.location.href = '/login'; }} className="text-red-500 hover:text-red-600 font-bold ml-2">Logout</button>
+                    <button onClick={() => { localStorage.clear(); window.location.href = '/login'; }} className="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-100 transition text-sm border border-red-200">Logout</button>
                 </div>
             </nav>
 
             <div className="max-w-7xl mx-auto p-6 md:p-8">
                 {/* Header */}
-                <div className="text-center mb-10">
-                        <h1 className="text-3xl font-extrabold text-[#2c1e6d]">Job Feed</h1>
-                        <p className="text-slate-500 mt-2 font-medium">Recommended opportunities based on your profile.</p>
-                </div>
                 
                 <div className="relative w-full md:w-96 mx-auto">
                        <input 
@@ -130,7 +126,8 @@ const Dashboard = () => {
                         </svg>
                     </div>
                 </div> 
-
+                <br/>
+                
                 {jobs.length === 0 ? <div className="text-center py-20 text-slate-400 font-medium">No jobs found matching your criteria.</div> : (
                     
                     /* Modern Grid Layout */

@@ -91,7 +91,7 @@ const SavedJobs = () => {
             </div>
 
             <div className="max-w-6xl mx-auto p-10">
-                <h2 className="text-3xl font-bold text-[#2c1e6d] mb-2">🔖 My Saved Jobs</h2>
+                <h2 className="text-3xl font-bold text-[#2c1e6d] mb-2">My Saved Jobs</h2>
                 <p className="text-gray-500 mb-8">Jobs you bookmarked for later.</p>
 
                 {jobs.length === 0 ? (

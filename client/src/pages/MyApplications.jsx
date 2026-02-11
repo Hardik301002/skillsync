@@ -94,8 +94,10 @@ const MyApplications = () => {
             <div className="max-w-7xl mx-auto px-6 py-12">
                 
                 {/* HEADER BOX */}
-                <div className="bg-white border border-gray-200 py-4 text-center rounded-t-lg shadow-sm mx-auto w-full relative z-10">
-                    <h2 className="text-xl font-bold text-gray-800">Applied Jobs</h2>
+                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 py-5 rounded-t-xl shadow-md mx-auto w-full relative z-10 border-b border-indigo-700">
+                    <h2 className="text-xl font-bold text-white text-center flex items-center justify-center gap-2">
+                      Applied Jobs
+                    </h2>
                 </div>
 
                 {/* DATA TABLE */}
