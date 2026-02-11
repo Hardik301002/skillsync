@@ -112,7 +112,8 @@ const Dashboard = () => {
             <div className="max-w-7xl mx-auto p-6 md:p-8">
                 {/* Header */}
                 <div className="text-center mb-10">
-                        <h1 className="text-3xl font-extrabold text-[#2c1e6d]">Job Feed</h1>
+                        <h1 className="text-transparent g-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">Job Feed</h1>
+                        <br />
                         <p className="text-slate-500 mt-2 font-medium">Recommended opportunities based on your profile.</p>
                     </div>
                 <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
@@ -125,11 +126,7 @@ const Dashboard = () => {
                             onChange={(e) => setSearchTerm(e.target.value)} 
                             className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white shadow-sm transition-all" 
                         />
-                        <span className="absolute left-3 top-3.5 text-slate-400">
-                            <button className="bg-indigo-600 text-white px-4 py-3 rounded-full font-bold hover:bg-indigo-700 transition shadow-md">
-                               Find Job
-                            </button>
-                        </span>
+                        <span className="absolute left-3 top-3.5 text-slate-400">🔍</span>
                     </div>
                 </div>
 
