@@ -112,23 +112,24 @@ const Dashboard = () => {
             <div className="max-w-7xl mx-auto p-6 md:p-8">
                 {/* Header */}
                 <div className="text-center mb-10">
-                        <spam className="text-transparent g-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">Job Feed</spam>
-                        <br />
+                        <h1 className="text-3xl font-extrabold text-[#2c1e6d]">Job Feed</h1>
                         <p className="text-slate-500 mt-2 font-medium">Recommended opportunities based on your profile.</p>
-                    </div>
-                <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
-
-                    <div className="relative w-full md:w-80 mx-auto">
-                        <input 
-                            type="text" 
-                            placeholder="Search roles..." 
-                            value={searchTerm} 
-                            onChange={(e) => setSearchTerm(e.target.value)} 
-                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white shadow-sm transition-all" 
-                        />
-                        <span className="absolute left-3 top-3.5 text-slate-400">🔍</span>
-                    </div>
                 </div>
+                
+                <div className="relative w-full md:w-96 mx-auto">
+                       <input 
+                          type="text" 
+                          placeholder="Search roles..." 
+                          value={searchTerm} 
+                          onChange={(e) => setSearchTerm(e.target.value)} 
+                          className="w-full pl-12 pr-4 py-3.5 rounded-full border-0 bg-white text-slate-800 shadow-lg shadow-indigo-500/10 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 transition-all hover:shadow-indigo-500/20" 
+                        />
+                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                        <svg className="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                </div> 
 
                 {jobs.length === 0 ? <div className="text-center py-20 text-slate-400 font-medium">No jobs found matching your criteria.</div> : (
                     
