@@ -112,7 +112,7 @@ const Dashboard = () => {
             <div className="max-w-7xl mx-auto p-6 md:p-8">
                 {/* Header */}
                 <div className="text-center mb-10">
-                        <h1 className="text-transparent g-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">Job Feed</h1>
+                        <spam className="text-transparent g-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">Job Feed</spam>
                         <br />
                         <p className="text-slate-500 mt-2 font-medium">Recommended opportunities based on your profile.</p>
                     </div>
