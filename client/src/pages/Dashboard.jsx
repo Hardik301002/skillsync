@@ -108,11 +108,8 @@ const Dashboard = () => {
                     <button onClick={() => { localStorage.clear(); window.location.href = '/login'; }} className="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-100 transition text-sm border border-red-200">Logout</button>
                 </div>
             </nav>
-
-            <div className="max-w-7xl mx-auto p-6 md:p-8">
-                {/* Header */}
-                
-                <div className="relative w-full md:w-96 mx-auto">
+              <br/>
+            <div className="relative md:w-1/2 mx-auto">
                        <input 
                           type="text" 
                           placeholder="Search roles..." 
@@ -126,14 +123,17 @@ const Dashboard = () => {
                         </svg>
                     </div>
                 </div> 
-                <br/>
+              
+
+            <div className="max-w-7xl mx-auto p-6 md:p-8">
+                {/* Header */}
                 
                 {jobs.length === 0 ? <div className="text-center py-20 text-slate-400 font-medium">No jobs found matching your criteria.</div> : (
                     
                     /* Modern Grid Layout */
                     <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {jobs.map(job => (
-                            <div key={job._id} className="bg-white rounded-xl p-5 shadow-sm border border-slate-200 hover:shadow-lg hover:border-indigo-100 transition-all duration-300 flex flex-col relative group">
+                            <div key={job._id} className="bg-white rounded-xl p-5 shadow-sm border border-slate-200 hover:shadow-xl hover:border-indigo-400 transition-all duration-300 flex flex-col relative group">
                                 
                                 {/* Save Heart */}
                                 <button 
