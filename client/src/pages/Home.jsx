@@ -50,24 +50,24 @@ const Home = () => {
             </nav>
 
             {/* 2. HERO SECTION */}
-            <header className="relative pt-20 pb-24 px-6 text-center overflow-hidden">
+            <header className="relative pt-5 text-center overflow-hidden">
                 {/* Background Decor */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-100/50 rounded-full blur-3xl -z-10"></div>
+                <div className="absolute left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-100/50 rounded-full blur-3xl -z-10"></div>
 
                 <div className="max-w-4xl mx-auto">
                     <span className="inline-block py-1 px-3 rounded-full bg-indigo-50 text-indigo-600 text-xs font-bold uppercase tracking-wider mb-6 border border-indigo-100">
                         The #1 Platform for Tech Talent
                     </span>
-                    <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
-                        Find the job that <br className="hidden md:block" />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">fits your life</span>
+                    <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-1 tracking-tight leading-tight">
+                        Find the job <br className="hidden md:block" />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">that fits your life</span>
                     </h1>
-                    <p className="text-slate-500 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
+                    <p className="font-medium text-slate-500 text-lg md:text-xl mb-5 max-w-2xl mx-auto leading-relaxed">
                         Connect with top companies like Google, Amazon, and Netflix. Your next career move is just one search away.
                     </p>
 
                     {/* Floating Search Bar */}
-                    <div className="max-w-2xl mx-auto bg-white p-2 rounded-full shadow-xl shadow-slate-200/60 border border-slate-200 flex items-center transition-all focus-within:ring-4 focus-within:ring-indigo-100 focus-within:border-indigo-400">
+                    <div className="max-w-2xl mx-auto bg-white p-1 rounded-full shadow-xl shadow-slate-200/60 border border-slate-200 flex items-center transition-all focus-within:ring-4 focus-within:ring-indigo-100 focus-within:border-indigo-400">
                         <span className="pl-6 text-slate-400 text-xl"></span>
                         <input 
                             type="text" 
@@ -82,7 +82,7 @@ const Home = () => {
                     </div>
 
                     {/* Tags */}
-                    <div className="mt-8 flex flex-wrap justify-center gap-2">
+                    <div className="mt-2 flex flex-wrap justify-center gap-2">
                         {['Remote', 'React', 'Google', 'Design', 'Backend'].map((tag) => (
                             <button 
                                 key={tag} 
@@ -97,13 +97,13 @@ const Home = () => {
             </header>
 
             {/* 3. JOB LISTINGS GRID */}
-            <section id="jobs" className="max-w-7xl mx-auto px-6 py-16">
+            <section id="jobs" className="max-w-7xl mx-auto px-6 py-5">
                 <div className="text-center max-w-7xl mx-auto px-6">
                     <div>
-                        <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
+                        <h2 className="text-5xl md:text-7xl font-extrabold text-violet-700 mb-6 tracking-tight leading-tight">
                             {searchTerm ? `Results for "${searchTerm}"` : 'Latest Opportunities'}
                         </h2>
-                        <p className="text-slate-500 mt-2">Hand-picked jobs for you.</p>
+                        <p className="font-medium text-slate-600 mt-1">Hand-picked jobs for you.</p>
                     </div>
                 </div>
                 <br />

@@ -56,17 +56,17 @@ const Register = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#f8fcfc] font-sans text-gray-800">
-            <div className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
+            <div className="bg-white p-10 py-3 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-extrabold text-[#2c1e6d] mb-2">SkillSync</h1>
                     <p className="text-gray-500">Create an account to get started</p>
                 </div>
 
-                <form onSubmit={onSubmit} className="space-y-5">
+                <form onSubmit={onSubmit} className="space-y-2">
                     
                     {/* ROLE SELECTION DROPDOWN */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">I am a...</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">I am a...</label>
                         <select 
                             name="role" 
                             value={role} 
@@ -109,7 +109,7 @@ const Register = () => {
                     </button>
                 </form>
 
-                <p className="text-center mt-6 text-gray-500">
+                <p className="text-center mt-2 text-gray-500">
                     Already have an account? <Link to="/login" className="text-[#6366f1] font-bold hover:underline">Login</Link>
                 </p>
             </div>
