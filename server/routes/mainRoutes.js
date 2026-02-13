@@ -6,7 +6,7 @@ const admin = require('../middleware/admin');
 const { storage } = require('../config/cloudinary'); // Cloudinary Storage
 
 // Models
-const User = require('../models/User'); // Import User Model
+const User = require('../models/User'); 
 const Application = require('../models/Application');
 const Company = require('../models/Company');
 const Job = require('../models/Job');
@@ -25,20 +25,14 @@ const cpUpload = upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'resume
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 
-// ✅ FIX: The /me Route (Debugged)
+// ✅ /me Route (Debugged)
 router.get('/me', auth, async (req, res) => {
     try {
-        // Find user and explicitly select these fields
         const user = await User.findById(req.user.id).select('-password');
         
-        // Debug Log: Check what the server actually sees
+        // Debug Log
         console.log(`🔍 GET /me hit for: ${user?.email}`);
-        console.log(`   -> Avatar in DB: ${user?.avatar}`);
-        console.log(`   -> Resume in DB: ${user?.resume}`);
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+        if (!user) return res.status(404).json({ message: 'User not found' });
         
         res.json(user);
     } catch (err) {
@@ -51,21 +45,40 @@ router.get('/me', auth, async (req, res) => {
 router.put('/profile', auth, cpUpload, updateUserProfile);
 
 // ==========================================
-//  COMPANY ROUTES
+//  COMPANY ROUTES (✅ FIXED)
 // ==========================================
 router.post('/companies', auth, upload.single('logo'), async (req, res) => {
+    console.log("🏢 Add Company Request Received");
+    
     try {
         const { name, location, website, description } = req.body;
+
+        // 1. Validation: Name and Location are required by your Schema
+        if (!name || !location) {
+            return res.status(400).json({ message: "Company Name and Location are required" });
+        }
+
         const logo = req.file ? req.file.path : ''; 
 
+        // 2. Create Company
+        // ✅ FIX: Changed 'createdBy' to 'recruiter' to match your Company.js model
         const newCompany = new Company({
-            name, location, website, description, logo, createdBy: req.user.id
+            name, 
+            location, 
+            website, 
+            description, 
+            logo, 
+            recruiter: req.user.id 
         });
 
         const company = await newCompany.save();
+        console.log("✅ Company Saved Successfully:", company._id);
+        
         res.json(company);
+
     } catch (err) {
-        res.status(500).send('Server Error');
+        console.error("❌ Add Company Error:", err.message);
+        res.status(500).json({ message: 'Server Error: ' + err.message });
     }
 });
 
