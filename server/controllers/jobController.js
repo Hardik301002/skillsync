@@ -124,34 +124,51 @@ exports.deleteJob = async (req, res) => {
 };
 
 // ---------------------------------------------------------
-// 5. UPDATE JOB
+// 5. UPDATE JOB (✅ NUCLEAR FIX)
 // ---------------------------------------------------------
 exports.updateJob = async (req, res) => {
+    console.log("📝 Update Job Request Received for ID:", req.params.id);
+
     try {
         let job = await Job.findById(req.params.id);
         if (!job) return res.status(404).json({ message: 'Job not found' });
 
+        // Security Check: Ensure only the Recruiter who posted it can edit it
         if (job.postedBy.toString() !== req.user.id) {
-            return res.status(401).json({ message: 'User not authorized' });
+            return res.status(401).json({ message: 'User not authorized to edit this job' });
         }
 
         const { title, company, location, salary, description, requiredSkills } = req.body;
-        
-        job.title = title || job.title;
-        job.company = company || job.company;
-        job.location = location || job.location;
-        job.salary = salary || job.salary;
-        job.description = description || job.description;
-        
+
+        // 1. Build the update object cleanly
+        const updateFields = {};
+        if (title) updateFields.title = title;
+        if (company) updateFields.company = company;
+        if (location) updateFields.location = location;
+        if (salary) updateFields.salary = salary;
+        if (description) updateFields.description = description;
+
+        // 2. Handle Skills Safely (whether it comes as an array or a comma-separated string)
         if (requiredSkills) {
-            job.requiredSkills = requiredSkills.split(',').map(s => s.trim());
+            updateFields.requiredSkills = Array.isArray(requiredSkills) 
+                ? requiredSkills 
+                : requiredSkills.split(',').map(s => s.trim());
         }
-        
-        await job.save();
-        res.json(job);
+
+        // 3. 🔥 FORCE DATABASE UPDATE (Atomic Update)
+        // { new: true } guarantees it sends the freshly updated data back to the frontend
+        const updatedJob = await Job.findByIdAndUpdate(
+            req.params.id,
+            { $set: updateFields },
+            { new: true, runValidators: true } 
+        );
+
+        console.log("✅ Job Updated in Database:", updatedJob.title);
+        res.json(updatedJob);
+
     } catch (err) {
-        console.error("Update Job Error:", err.message);
-        res.status(500).send('Server Error');
+        console.error("❌ Update Job Error:", err.message);
+        res.status(500).json({ message: 'Server Error: ' + err.message });
     }
 };
 

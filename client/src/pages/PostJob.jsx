@@ -81,17 +81,17 @@ const PostJob = () => {
                 </div>
             </nav>
 
-            <div className="max-w-3xl mx-auto p-6 md:p-10">
+            <div className="max-w-3xl mx-auto p-5 md:p-1">
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="bg-indigo-50 p-4 border-b border-indigo-100 flex items-center gap-3">
                          <p className="font-bold text-indigo-900">Job Details</p>
                     </div>
                     
-                    <form onSubmit={onSubmit} className="p-8 space-y-6">
+                    <form onSubmit={onSubmit} className="p-8 space-y-3">
                         {/* Title */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Job Title</label>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Job Title</label>
                             <input 
                                 type="text" 
                                 name="title" 
@@ -118,7 +118,7 @@ const PostJob = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Location</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Location</label>
                                 <input 
                                     type="text" 
                                     name="location" 
@@ -133,7 +133,7 @@ const PostJob = () => {
 
                         {/* Salary */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Salary Range (CTC)</label>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Salary Range (CTC)</label>
                             <input 
                                 type="text" 
                                 name="salary" 
@@ -147,7 +147,7 @@ const PostJob = () => {
 
                         {/* Skills */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Required Skills (Comma separated)</label>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Required Skills (Comma separated)</label>
                             <input 
                                 type="text" 
                                 name="requiredSkills" 
@@ -157,12 +157,12 @@ const PostJob = () => {
                                 className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6366f1] transition bg-gray-50 focus:bg-white"
                                 placeholder="e.g. React, Node.js, MongoDB, AWS"
                             />
-                            <p className="text-xs text-gray-400 mt-2">These tags help candidates find your job.</p>
+                            <p className="text-xs text-gray-400 mt-1">These tags help candidates find your job.</p>
                         </div>
 
                         {/* Description */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Job Description</label>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Job Description</label>
                             <textarea 
                                 name="description" 
                                 value={description} 
