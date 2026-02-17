@@ -16,7 +16,7 @@ const RegisteredCompanies = () => {
     const rawUser = localStorage.getItem('user');
     const user = rawUser ? JSON.parse(rawUser) : null;
 
-    // ✅ 2. HELPER FUNCTION
+    // HELPER: Get Correct Avatar URL
     const getAvatarUrl = () => {
         if (user && user.avatar) {
            if (user.avatar.startsWith('http')) {
@@ -32,7 +32,7 @@ const RegisteredCompanies = () => {
             try {
                 const token = localStorage.getItem('token');
                 const config = { headers: { 'x-auth-token': token } };
-                //  Fetch companies from the new API endpoint
+                // Fetch companies
                 const res = await API.get('/companies', config);
                 setCompanies(res.data);
             } catch (err) {
@@ -45,17 +45,41 @@ const RegisteredCompanies = () => {
         fetchCompanies();
     }, []);
 
+    // ✅ NEW: Delete Company Function
+    const handleDeleteCompany = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this company?")) return;
+        
+        try {
+            const token = localStorage.getItem('token');
+            const config = { headers: { 'x-auth-token': token } };
+            
+            await API.delete(`/companies/${id}`, config);
+            
+            // Remove the deleted company from the screen immediately
+            setCompanies(companies.filter(company => company._id !== id));
+            toast.success("Company Deleted Successfully!");
+        } catch (err) {
+            console.error("Delete Error:", err);
+            toast.error("Failed to delete company.");
+        }
+    };
+
     const filteredCompanies = companies.filter(company =>
         company.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Helper to display company logo or placeholder
+    // ✅ FIXED: Company Logo Helper (Now supports Cloudinary!)
     const CompanyLogo = ({ company, className }) => {
-        // Ensure we strip bad paths from company logos too!
         let logoUrl = null;
         if (company.logo) {
-            const filename = company.logo.split(/[/\\]/).pop();
-            logoUrl = `${BASE_URL}/uploads/${filename}`;
+            // Check if it's already a full Cloudinary URL
+            if (company.logo.startsWith('http')) {
+                logoUrl = company.logo;
+            } else {
+                // Fallback for old local uploads
+                const filename = company.logo.split(/[/\\]/).pop();
+                logoUrl = `${BASE_URL}/uploads/${filename}`;
+            }
         }
 
         if (logoUrl) {
@@ -81,7 +105,6 @@ const RegisteredCompanies = () => {
                 <div className="flex items-center gap-4">
                     <button onClick={() => navigate('/dashboard')} className="bg-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-md transition text-sm flex items-center gap-2">Dashboard</button>
                     
-                    {/* ✅ 3. USE HELPER HERE */}
                     <button onClick={() => navigate('/profile')} className="w-10 h-10 rounded-full bg-indigo-100 border-2 border-indigo-200 overflow-hidden hover:ring-2 hover:ring-indigo-300 transition">
                          <img 
                             src={getAvatarUrl()} 
@@ -121,13 +144,13 @@ const RegisteredCompanies = () => {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-slate-100 text-slate-500 text-sm font-medium">
+                                <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs uppercase font-bold tracking-wider">
                                     <th className="px-6 py-4">Logo</th>
                                     <th className="px-6 py-4">Name</th>
                                     <th className="px-6 py-4">Location</th>
                                     <th className="px-6 py-4">website</th>
                                     <th className="px-6 py-4">Date</th>
-                                    <th className="px-6 py-4 text-center">Action</th>
+                                    <th className="px-6 py-4 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
@@ -135,28 +158,42 @@ const RegisteredCompanies = () => {
                                     <tr><td colSpan="6" className="text-center py-12 text-slate-400 font-medium">No companies found.</td></tr>
                                 ) : (
                                     filteredCompanies.map((company) => (
-                                        <tr key={company._id} className="hover:bg-slate-50/50 transition">
+                                        <tr key={company._id} className="hover:bg-slate-50/80 transition group">
                                             {/* Logo */}
                                             <td className="px-6 py-4">
-                                                <CompanyLogo company={company} className="w-8 h-8 rounded-full" />
+                                                <CompanyLogo company={company} className="w-10 h-10 rounded-lg border border-slate-100 bg-white shadow-sm" />
                                             </td>
                                             
                                             <td className="px-6 py-4 font-bold text-slate-900">{company.name}</td>
-                                            <td className="px-6 py-4 text-slate-700 font-medium">{company.location}</td>
-                                            <td className="px-6 py-4 text-slate-600 font-medium">
+                                            <td className="px-6 py-4 text-slate-700 font-medium text-sm">{company.location}</td>
+                                            <td className="px-6 py-4 text-slate-600 font-medium text-sm">
                                                 {company.website ? (
                                                     <a href={company.website.startsWith('http') ? company.website : `https://${company.website}`} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 hover:underline">
                                                         {company.website}
                                                     </a>
                                                 ) : '-'}
                                             </td>
-                                            <td className="px-6 py-4 text-slate-500 font-medium">
+                                            <td className="px-6 py-4 text-slate-500 font-medium text-sm">
                                                 {new Date(company.createdAt).toISOString().split('T')[0]}
                                             </td>
                                             
-                                            {/* Action (Three dots) */}
-                                            <td className="px-6 py-4 text-center text-2xl text-slate-400 cursor-pointer hover:text-slate-600 leading-none">
-                                                <button onClick={() => navigate(`/edit-company/${company._id}`)}>...</button>
+                                            {/* ✅ NEW: Action Buttons (View, Edit, Delete) */}
+                                            <td className="px-6 py-4">
+                                                <div className="flex justify-center gap-2">
+                                                    
+                                                    {/* Edit */}
+                                                    <button onClick={() => navigate(`/edit-company/${company._id}`)} className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200" title="Edit Company">
+                                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        </svg>
+                                                    </button>
+                                                    {/* Delete */}
+                                                    <button onClick={() => handleDeleteCompany(company._id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200" title="Delete Company">
+                                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
